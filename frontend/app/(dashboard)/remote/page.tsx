@@ -122,7 +122,7 @@ export default function RemotePage() {
         <div className="glass-card rounded-xl p-6 space-y-4">
           <h2 className="text-text-primary font-semibold text-lg">Pair a device</h2>
           <p className="text-text-secondary text-sm">
-            Keep MediaVault Pro running on your desktop. Open this page on your phone and enter the code shown on your desktop.
+            Keep MediaVault running on your desktop. Open this page on your phone and enter the code shown on your desktop.
           </p>
           <div>
             <label className="block text-text-primary text-sm font-medium mb-2">Device name</label>
@@ -344,3 +344,4 @@ export default function RemotePage() {
     </FeatureGuard>
   );
 }
+

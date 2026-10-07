@@ -58,7 +58,7 @@ export interface SavedSearch {
   created_at: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function searchMedia(payload: SearchRequest): Promise<SearchResponse> {
   const res = await fetch(`${API_BASE}/search`, {
@@ -90,3 +90,4 @@ export async function deleteSavedSearch(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/saved-searches/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete saved search');
 }
+

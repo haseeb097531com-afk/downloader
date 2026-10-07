@@ -41,7 +41,7 @@ export interface DownloadActionResult {
   message: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getQueue(): Promise<QueueSnapshot> {
   const res = await fetch(`${API_BASE}/queue`);
@@ -90,3 +90,4 @@ export async function retryDownload(id: string): Promise<DownloadActionResult> {
   if (!res.ok) throw new Error('Failed to retry download');
   return res.json();
 }
+

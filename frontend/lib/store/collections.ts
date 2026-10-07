@@ -218,3 +218,4 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
   },
 }));
+

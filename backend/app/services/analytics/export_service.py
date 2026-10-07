@@ -135,7 +135,7 @@ class ExportService:
         title_style.textColor = brand_primary
         title_style.fontSize = 24
         title_style.spaceAfter = 6
-        story.append(Paragraph("MediaVault Pro Analytics", title_style))
+        story.append(Paragraph("MediaVault Analytics", title_style))
         story.append(Spacer(1, 4))
 
         subtitle = styles["Normal"].clone("BrandSubtitle")

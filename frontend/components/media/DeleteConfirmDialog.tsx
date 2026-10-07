@@ -59,3 +59,4 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, title, message
     </AnimatePresence>
   );
 }
+

@@ -142,7 +142,7 @@ class ClipboardMonitor:
                 try:
                     if notification is not None:
                         notification.notify(
-                            title="MediaVault Pro",
+                            title="MediaVault",
                             message=f"New {platform} link detected - open dashboard to download",
                         )
                 except Exception as exc:

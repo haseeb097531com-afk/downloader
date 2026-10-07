@@ -53,7 +53,7 @@ export interface AuditLogEntry {
   username: string | null;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 function authHeaders(token?: string): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -154,3 +154,4 @@ export async function getAuditLogs(token: string, limit = 10): Promise<AuditLogE
   if (!res.ok) throw new Error('Failed to fetch audit logs');
   return res.json();
 }
+

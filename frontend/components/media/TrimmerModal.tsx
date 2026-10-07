@@ -25,7 +25,7 @@ export function TrimmerModal({ isOpen, onClose, item, streamUrl }: TrimmerModalP
   const [toast, setToast] = useState<{ id: string; message: string; type: 'success' | 'error' } | null>(null);
 
   const fileUrl = item
-    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/downloads/${item.id}/file`
+    ? `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/downloads/${item.id}/file`
     : streamUrl || '';
 
   useEffect(() => {
@@ -342,3 +342,4 @@ export function TrimmerModal({ isOpen, onClose, item, streamUrl }: TrimmerModalP
     </AnimatePresence>
   );
 }
+

@@ -39,7 +39,7 @@ export function InstallPrompt() {
           <Download className="w-5 h-5 text-accent-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-text-primary text-sm font-medium">Install MediaVault Pro</p>
+          <p className="text-text-primary text-sm font-medium">Install MediaVault</p>
           <p className="text-text-secondary text-xs mt-0.5">Add to home screen for quick access and offline mode</p>
         </div>
         <button onClick={handleInstall} className="text-xs px-3 py-1.5 rounded-lg bg-accent-primary text-white hover:opacity-90">
@@ -49,3 +49,4 @@ export function InstallPrompt() {
     </div>
   );
 }
+

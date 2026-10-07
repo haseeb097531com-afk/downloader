@@ -38,7 +38,7 @@ export interface ReorderItemsPayload {
   item_ids: string[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getCollections(): Promise<Collection[]> {
   const res = await fetch(`${API_BASE}/collections`);
@@ -123,3 +123,4 @@ export function triggerBlobDownload(blob: Blob, filename: string) {
 export function buildExportUrl(collectionId: string, format: 'm3u' | 'json'): string {
   return `${API_BASE}/collections/${collectionId}/export/${format}`;
 }
+

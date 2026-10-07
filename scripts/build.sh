@@ -1,7 +1,7 @@
 #!/bin/bash
 # build.sh
 
-echo "Building MediaVault Pro..."
+echo "Building MediaVault..."
 
 # Build Frontend
 cd ../frontend

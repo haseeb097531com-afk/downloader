@@ -50,7 +50,7 @@ export default function BulkProgressPage() {
   }, [jobId]);
 
   useEffect(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws';
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || '/ws';
     const ws = new WebSocket(`${wsUrl}/bulk/${jobId}`);
     wsRef.current = ws;
 

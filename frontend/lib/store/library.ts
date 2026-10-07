@@ -259,3 +259,4 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
 
   setSelectedItem: (item) => set({ selectedItem: item }),
 }));
+

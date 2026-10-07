@@ -21,7 +21,7 @@ export interface CreateScheduleRequest {
   is_active?: boolean;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function listSchedules(): Promise<Schedule[]> {
   const res = await fetch(`${API_BASE}/schedules`);
@@ -59,3 +59,4 @@ export async function deleteSchedule(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/schedules/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete schedule');
 }
+

@@ -40,7 +40,7 @@ export interface DedupCleanupResponse {
   deleted_count: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function checkDedupUrl(url: string): Promise<DedupCheckResponse> {
   const res = await fetch(`${API_BASE}/dedup/check?${new URLSearchParams({ url })}`);
@@ -69,3 +69,4 @@ export async function dedupCleanup(deleteIds: string[]): Promise<DedupCleanupRes
   if (!res.ok) throw new Error('Failed to cleanup duplicates');
   return res.json();
 }
+

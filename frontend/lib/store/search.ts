@@ -153,3 +153,4 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
   },
 }));
+

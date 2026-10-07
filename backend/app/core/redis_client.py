@@ -1,6 +1,6 @@
 """Redis access helpers shared by the API, the queue orchestrator and the workers.
 
-This module owns the single Redis key convention used across MediaVault Pro so the
+This module owns the single Redis key convention used across MediaVault so the
 API process and the Celery workers never disagree on where a pause flag or a
 progress snapshot lives.
 

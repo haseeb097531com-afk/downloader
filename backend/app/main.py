@@ -222,7 +222,7 @@ async def _seed_default_user(db) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Starting up MediaVault Pro backend...")
+    print("Starting up MediaVault backend...")
 
     # Ensure JWT secret exists when auth is enabled.
     if getattr(settings, "AUTH_ENABLED", False):
@@ -277,7 +277,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    print("Shutting down MediaVault Pro backend...")
+    print("Shutting down MediaVault backend...")
     if _telegram_bot_task is not None:
         try:
             from app.services.bot.telegram_bot import TelegramBotService

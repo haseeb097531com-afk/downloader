@@ -242,3 +242,4 @@ export function FilterPanel({ filters, facets, sort, onFiltersChange, onSortChan
   );
 }
 
+

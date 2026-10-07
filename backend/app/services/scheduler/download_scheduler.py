@@ -1,4 +1,4 @@
-"""APScheduler-based download scheduler for MediaVault Pro.
+"""APScheduler-based download scheduler for MediaVault.
 
 Integrates with FastAPI lifespan so active schedules are loaded on startup and
 stopped cleanly on shutdown.

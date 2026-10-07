@@ -69,3 +69,4 @@ export function SearchBar({ value, onChange, onSave }: SearchBarProps) {
     </div>
   );
 }
+

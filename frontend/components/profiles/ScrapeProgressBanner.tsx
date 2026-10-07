@@ -36,3 +36,4 @@ export function ScrapeProgressBanner({ profileId }: { profileId: string }) {
     </AnimatePresence>
   );
 }
+

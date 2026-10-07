@@ -121,3 +121,4 @@ export const usePluginsStore = create<PluginsState>((set, get) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
   },
 }));
+

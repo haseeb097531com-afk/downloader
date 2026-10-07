@@ -61,7 +61,7 @@ export const useDeviceStore = create<DeviceState>()(
         set({ isPairing: true, error: null });
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/devices/pair`,
+            `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/devices/pair`,
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -155,3 +155,4 @@ export const useDeviceStore = create<DeviceState>()(
     }
   )
 );
+

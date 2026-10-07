@@ -1,4 +1,4 @@
-"""Shared test setup for the MediaVault Pro backend.
+"""Shared test setup for the MediaVault backend.
 
 Two responsibilities:
 

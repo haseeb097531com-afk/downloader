@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getPublicKey(): Promise<{ public_key: string }> {
   const res = await fetch(`${API_BASE}/push/public-key`);
@@ -27,3 +27,4 @@ export async function sendTestPush(): Promise<{ ok: boolean }> {
   if (!res.ok) throw new Error('Failed to send test push');
   return res.json();
 }
+

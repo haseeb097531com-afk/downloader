@@ -88,3 +88,4 @@ export function RenameModal({ item, isOpen, onClose, onRename }: RenameModalProp
     </AnimatePresence>
   );
 }
+

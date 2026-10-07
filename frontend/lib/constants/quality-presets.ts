@@ -10,3 +10,4 @@ export const QUALITY_PRESETS = [
 ] as const;
 
 export type QualityPreset = typeof QUALITY_PRESETS[number]['value'];
+

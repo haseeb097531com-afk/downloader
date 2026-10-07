@@ -129,14 +129,14 @@ export const useDesktopStore = create<DesktopState>((set, get) => ({
   },
 
   subscribeClipboardWS: () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/';
     let wsUrl: string;
     try {
       const url = new URL(apiUrl);
       const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
       wsUrl = `${protocol}//${url.host}/ws/clipboard`;
     } catch {
-      wsUrl = 'ws://localhost:8000/ws/clipboard';
+      wsUrl = '/ws/clipboard';
     }
 
     let ws: WebSocket | null = null;
@@ -253,3 +253,4 @@ export const useDesktopStore = create<DesktopState>((set, get) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
   },
 }));
+

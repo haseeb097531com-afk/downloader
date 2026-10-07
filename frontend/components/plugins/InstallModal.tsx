@@ -150,7 +150,7 @@ export default function InstallModal({ isOpen, onClose }: InstallModalProps) {
               <div className="flex items-start gap-3 p-4 rounded-lg bg-status-warning/10 border border-status-warning/20">
                 <AlertTriangle className="w-5 h-5 text-status-warning flex-shrink-0 mt-0.5" />
                 <p className="text-text-secondary text-sm">
-                  Only install plugins from trusted sources. Community plugins are not verified by the MediaVault Pro team.
+                  Only install plugins from trusted sources. Community plugins are not verified by the MediaVault team.
                 </p>
               </div>
 
@@ -239,3 +239,4 @@ export default function InstallModal({ isOpen, onClose }: InstallModalProps) {
     </AnimatePresence>
   );
 }
+

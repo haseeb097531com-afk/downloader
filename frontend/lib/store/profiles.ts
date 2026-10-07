@@ -62,7 +62,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   },
 
   subscribeScrapeProgress: (profileId) => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws';
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || '/ws';
     const ws = new WebSocket(`${wsUrl}/scrape/${profileId}`);
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -106,3 +106,4 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   clearSelection: () => set({ selectedVideoIds: new Set() }),
   setQuality: (quality) => set({ qualityPreference: quality }),
 }));
+

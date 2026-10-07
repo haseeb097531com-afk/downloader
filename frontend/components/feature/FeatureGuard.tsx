@@ -59,3 +59,4 @@ export function FeatureGuard({ featureKey, children }: FeatureGuardProps) {
 
   return <>{children}</>;
 }
+

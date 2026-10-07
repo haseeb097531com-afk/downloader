@@ -101,3 +101,4 @@ export function NewCollectionModal({ isOpen, onClose, onCreate }: NewCollectionM
     </AnimatePresence>
   );
 }
+

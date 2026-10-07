@@ -250,7 +250,7 @@ class PlatformDetector:
                 return ValidationResult(
                     is_valid=False,
                     platform_info=platform_info,
-                    error_message="Unsupported platform. MediaVault Pro currently supports YouTube, TikTok, Instagram, Facebook, and Twitter/X."
+                    error_message="Unsupported platform. MediaVault currently supports YouTube, TikTok, Instagram, Facebook, and Twitter/X."
                 )
                 
             if platform_info.platform_name not in settings.ALLOWED_PLATFORMS:

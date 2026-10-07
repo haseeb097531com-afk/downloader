@@ -31,7 +31,7 @@ export interface ExportResponse {
   filename: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
   const res = await fetch(`${API_BASE}/analytics/overview`);
@@ -68,3 +68,4 @@ export async function exportAnalyticsPdf(range = '7d'): Promise<ExportResponse> 
   if (!res.ok) throw new Error('Failed to export analytics PDF');
   return res.json();
 }
+

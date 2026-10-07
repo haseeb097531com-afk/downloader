@@ -36,3 +36,4 @@ export function VideoCard({ video, selected, onSelect }: { video: ProfileVideo; 
     </motion.div>
   );
 }
+

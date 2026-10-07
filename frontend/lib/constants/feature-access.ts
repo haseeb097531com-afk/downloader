@@ -39,3 +39,4 @@ export function isFeatureUnlocked(
   const neededTier = PLAN_TIERS[needed] ?? 0;
   return currentTier >= neededTier;
 }
+

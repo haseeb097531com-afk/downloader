@@ -112,3 +112,4 @@ export function UpgradeModal({ isOpen, onClose, featureKey, neededPlan }: Upgrad
     </AnimatePresence>
   );
 }
+

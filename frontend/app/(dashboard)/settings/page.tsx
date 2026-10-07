@@ -1247,7 +1247,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-text-primary font-medium">App Install</p>
-                  <p className="text-text-secondary text-sm mt-0.5">Install MediaVault Pro as a desktop app</p>
+                  <p className="text-text-secondary text-sm mt-0.5">Install MediaVault as a desktop app</p>
                 </div>
                 <InstallStatus />
               </div>
@@ -1379,3 +1379,4 @@ function SWStatus() {
     </div>
   );
 }
+

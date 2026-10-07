@@ -217,3 +217,4 @@ export function MediaCard({ item, onPreview, onOpenFolder, onRename, onDelete, o
     </div>
   );
 }
+

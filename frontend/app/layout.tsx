@@ -29,14 +29,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MediaVault Pro",
+  title: "MediaVault",
   description: "Download. Organize. Analyze. Automate.",
   manifest: "/manifest.webmanifest",
   themeColor: "#6C5CE7",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "MediaVault Pro",
+    title: "MediaVault",
   },
 };
 
@@ -57,3 +57,4 @@ export default function RootLayout({
     </html>
   );
 }
+

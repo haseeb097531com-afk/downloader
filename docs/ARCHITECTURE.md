@@ -1,6 +1,6 @@
 # Architecture Overview
 
-MediaVault Pro uses a monorepo architecture separating frontend and backend workspaces.
+MediaVault uses a monorepo architecture separating frontend and backend workspaces.
 
 ## Frontend (Next.js 14)
 - **App Router**: Organizes routes with nested layouts (dashboard, queue, library).

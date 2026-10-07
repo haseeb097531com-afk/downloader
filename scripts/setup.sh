@@ -1,7 +1,7 @@
 #!/bin/bash
 # setup.sh
 
-echo "Starting MediaVault Pro Setup..."
+echo "Starting MediaVault Setup..."
 
 if ! command -v node &> /dev/null; then echo "Node.js is not installed. Please install Node.js."; exit 1; fi
 if ! command -v python &> /dev/null; then echo "Python is not installed. Please install Python."; exit 1; fi

@@ -26,7 +26,7 @@ export interface SystemSpeed {
   current_speed_mbps: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getSystemStats(): Promise<SystemStats> {
   const res = await fetch(`${API_BASE}/system/stats`);
@@ -51,3 +51,4 @@ export async function getSystemSpeed(): Promise<SystemSpeed> {
   if (!res.ok) throw new Error('Failed to fetch system speed');
   return res.json();
 }
+

@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export interface CloudStatus {
   google_connected: boolean;
@@ -51,3 +51,4 @@ export async function backupDownload(id: string): Promise<BackupResponse> {
   if (!res.ok) throw new Error('Failed to backup download');
   return res.json();
 }
+

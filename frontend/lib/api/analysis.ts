@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export interface AnalysisStatus {
   status: 'none' | 'processing' | 'completed' | 'failed';
@@ -37,3 +37,4 @@ export async function getAnalysisContent(downloadId: string, kind: string): Prom
   if (!res.ok) throw new Error(`Failed to fetch ${kind} content`);
   return res.json();
 }
+

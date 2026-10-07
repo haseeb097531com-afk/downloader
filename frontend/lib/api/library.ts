@@ -81,7 +81,7 @@ export interface ImportResult {
   errors: string[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getLibrary(page = 1, limit = 24, platform?: string, search?: string, category?: string): Promise<LibraryPage> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
@@ -141,3 +141,4 @@ export async function importUntrackedFiles(filePaths: string[]): Promise<ImportR
   if (!res.ok) throw new Error('Failed to import files');
   return res.json();
 }
+

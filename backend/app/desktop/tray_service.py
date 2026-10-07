@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class TrayService:
-    """System tray icon with quick controls for MediaVault Pro.
+    """System tray icon with quick controls for MediaVault.
 
     The tray runs in a dedicated daemon thread so it never blocks the API
     server. All menu actions are wrapped so a failure degrades to a log entry.
@@ -62,7 +62,7 @@ class TrayService:
         try:
             icon = self._create_icon()
             menu = self._create_menu()
-            self._icon = pystray.Icon("mediavault", icon, "MediaVault Pro", menu)
+            self._icon = pystray.Icon("mediavault", icon, "MediaVault", menu)
             self._icon.run()
         except Exception as exc:
             logger.warning("Tray service error: %s", exc)
@@ -97,7 +97,7 @@ class TrayService:
             b = int(color2[2] * ratio + color1[2] * (1 - ratio))
             draw.line([(8, y), (size - 9, y)], fill=(r, g, b, 255))
 
-        return pystray.Icon("mediavault", image, "MediaVault Pro")
+        return pystray.Icon("mediavault", image, "MediaVault")
 
     def _create_menu(self) -> "Menu":
         return Menu(
@@ -110,21 +110,24 @@ class TrayService:
 
     def _open_dashboard(self, icon: "pystray.Icon", item: "pystray.MenuItem") -> None:
         try:
-            webbrowser.open("http://localhost:3000")
+            base = settings.PUBLIC_BASE_URL or "http://localhost:3000"
+            webbrowser.open(base)
         except Exception as exc:
             logger.warning("Failed to open dashboard: %s", exc)
 
     def _pause_all(self, icon: "pystray.Icon", item: "pystray.MenuItem") -> None:
         try:
             import httpx
-            httpx.post("http://localhost:8000/api/v1/queue/pause-all", timeout=5)
+            base = settings.PUBLIC_BASE_URL or "http://localhost:8000"
+            httpx.post(f"{base}/api/v1/queue/pause-all", timeout=5)
         except Exception as exc:
             logger.warning("Failed to pause all downloads: %s", exc)
 
     def _resume_all(self, icon: "pystray.Icon", item: "pystray.MenuItem") -> None:
         try:
             import httpx
-            httpx.post("http://localhost:8000/api/v1/queue/resume-all", timeout=5)
+            base = settings.PUBLIC_BASE_URL or "http://localhost:8000"
+            httpx.post(f"{base}/api/v1/queue/resume-all", timeout=5)
         except Exception as exc:
             logger.warning("Failed to resume all downloads: %s", exc)
 

@@ -1,4 +1,4 @@
-# MediaVault Pro
+# MediaVault
 
 "Download. Organize. Analyze. Automate."
 

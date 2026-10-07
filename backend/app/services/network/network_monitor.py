@@ -1,4 +1,4 @@
-"""Lightweight network monitor for MediaVault Pro.
+"""Lightweight network monitor for MediaVault.
 
 Measures downstream bandwidth by downloading a small static payload from a fast
 CDN, caches the result in Redis, and exposes a quality recommendation helper.

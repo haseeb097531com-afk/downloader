@@ -418,3 +418,4 @@ function formatTranscript(text: string): string {
     })
     .join('\n');
 }
+

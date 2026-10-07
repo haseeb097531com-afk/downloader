@@ -92,3 +92,4 @@ export function CollectionCard({ collection, onOpen, onRename, onDelete, onExpor
     </motion.div>
   );
 }
+

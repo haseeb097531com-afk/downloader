@@ -20,7 +20,7 @@ export interface ProviderStatusResponse {
   }[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getProviderStatus(): Promise<ProviderStatusResponse> {
   const res = await fetch(`${API_BASE}/providers/status`);
@@ -33,3 +33,4 @@ export async function testProvider(provider: string): Promise<{ success: boolean
   if (!res.ok) throw new Error('Failed to test provider');
   return res.json();
 }
+

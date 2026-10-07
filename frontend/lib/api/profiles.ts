@@ -42,7 +42,7 @@ export interface BulkEnqueueResponse {
   failed: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function listProfiles(): Promise<Profile[]> {
   const res = await fetch(`${API_BASE}/profiles/`);
@@ -80,3 +80,4 @@ export async function deleteProfile(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/profiles/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete profile');
 }
+

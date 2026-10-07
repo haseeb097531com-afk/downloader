@@ -3,7 +3,7 @@ from typing import List
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "MediaVault Pro"
+    PROJECT_NAME: str = "MediaVault"
     VERSION: str = "1.0.0"
     DESCRIPTION: str = "An AI-powered, cross-platform social media downloader"
     API_V1_STR: str = "/api/v1"
@@ -54,7 +54,10 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = REDIS_URL
     
     # Security / CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    BACKEND_CORS_ORIGINS: List[str] = os.getenv(
+        "BACKEND_CORS_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    ).split(",")
     
     # Logging
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")

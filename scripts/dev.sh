@@ -1,7 +1,7 @@
 #!/bin/bash
 # dev.sh
 
-echo "Starting MediaVault Pro Development Environment..."
+echo "Starting MediaVault Development Environment..."
 
 cd ..
 make dev

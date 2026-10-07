@@ -37,7 +37,7 @@ export interface BillingTenant {
   quota_override_until: string | null;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 function authHeaders(token?: string): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -129,3 +129,4 @@ export async function cancelTenantSubscription(token: string, tenantId: string):
   }
   return res.json();
 }
+

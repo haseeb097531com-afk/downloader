@@ -28,7 +28,7 @@ export interface BulkJobResponse {
   job_id: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function bulkImportLinks(payload: BulkLinksRequest): Promise<BulkJobResponse> {
   const res = await fetch(`${API_BASE}/bulk/links`, {
@@ -61,3 +61,4 @@ export async function retryBulkJob(jobId: string): Promise<{ retried: number }> 
   if (!res.ok) throw new Error('Failed to retry bulk job');
   return res.json();
 }
+

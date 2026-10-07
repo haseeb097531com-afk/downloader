@@ -104,7 +104,7 @@ export function MediaPreviewModal({ item, onClose, onAddToCollection }: MediaPre
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const fileUrl = item ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/downloads/${item.id}/file` : '';
+  const fileUrl = item ? `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/downloads/${item.id}/file` : '';
 
   return (
     <AnimatePresence>
@@ -214,3 +214,4 @@ export function MediaPreviewModal({ item, onClose, onAddToCollection }: MediaPre
     </AnimatePresence>
   );
 }
+

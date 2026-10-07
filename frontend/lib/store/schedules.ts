@@ -96,3 +96,4 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
   },
 }));
+

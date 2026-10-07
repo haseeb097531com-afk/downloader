@@ -1,4 +1,4 @@
-"""Safe filesystem access for MediaVault Pro.
+"""Safe filesystem access for MediaVault.
 
 Every path that reaches the disk passes through :class:`FileManager`, which owns
 three responsibilities:

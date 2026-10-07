@@ -153,3 +153,4 @@ export function AddToCollectionModal({ isOpen, onClose, downloadIds, onSuccess }
     </AnimatePresence>
   );
 }
+

@@ -255,3 +255,4 @@ export default function ScheduleModal({ isOpen, onClose, profileId, existingSche
     </AnimatePresence>
   );
 }
+

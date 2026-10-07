@@ -164,7 +164,7 @@ export default function HomePage() {
                 <Download className="absolute inset-0 m-auto w-6 h-6 text-white" />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold font-heading gradient-text">
-                MediaVault Pro
+                MediaVault
               </h1>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-text-primary mb-3">
@@ -652,3 +652,4 @@ export default function HomePage() {
     </div>
   );
 }
+

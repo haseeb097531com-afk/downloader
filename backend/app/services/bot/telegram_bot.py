@@ -1,4 +1,4 @@
-"""Telegram bot service for MediaVault Pro."""
+"""Telegram bot service for MediaVault."""
 
 from __future__ import annotations
 
@@ -101,7 +101,7 @@ class TelegramBotService:
         if not self.allowed_chat_ids:
             self.allowed_chat_ids.add(chat_id)
         await update.message.reply_text(
-            "MediaVault Pro bot ready.\nSend me any YouTube / TikTok / Instagram / Facebook / Twitter link and I'll queue it here."
+            "MediaVault bot ready.\nSend me any YouTube / TikTok / Instagram / Facebook / Twitter link and I'll queue it here."
         )
 
     async def _cmd_status(self, update: Update, context: CallbackContext) -> None:

@@ -18,7 +18,7 @@ export interface PinResponse {
   message?: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export async function getModerationSettings(): Promise<ModerationSettings> {
   const res = await fetch(`${API_BASE}/moderation/settings`);
@@ -73,3 +73,4 @@ export async function purgeItem(id: string): Promise<{ success: boolean }> {
   if (!res.ok) throw new Error('Failed to purge item');
   return res.json();
 }
+

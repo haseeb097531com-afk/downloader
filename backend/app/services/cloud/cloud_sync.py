@@ -134,7 +134,7 @@ class GoogleDriveClient:
             raise ValueError("GOOGLE_DRIVE_CLIENT_ID is not configured")
         params = (
             f"client_id={client_id}"
-            f"&redirect_uri=http://localhost:8000/api/v1/cloud/google/callback"
+            f"&redirect_uri={settings.PUBLIC_BASE_URL}/api/v1/cloud/google/callback"
             f"&response_type=code"
             f"&scope={' '.join(self.SCOPES)}"
             f"&access_type=offline"
@@ -157,7 +157,7 @@ class GoogleDriveClient:
                 "code": code,
                 "client_id": client_id,
                 "client_secret": client_secret,
-                "redirect_uri": "http://localhost:8000/api/v1/cloud/google/callback",
+                "redirect_uri": f"{settings.PUBLIC_BASE_URL}/api/v1/cloud/google/callback",
                 "grant_type": "authorization_code",
             },
             headers={"Accept": "application/json"},

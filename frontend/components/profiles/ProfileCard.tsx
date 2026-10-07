@@ -32,3 +32,4 @@ export function ProfileCard({ profile, onDelete, onRescrape }: { profile: Profil
     </motion.div>
   );
 }
+
