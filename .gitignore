@@ -1,0 +1,27 @@
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Backend
+backend/__pycache__/
+backend/.pytest_cache/
+backend/.venv/
+backend/venv/
+backend/env/
+backend/.env
+backend/mediavault.db
+
+# General
+.DS_Store
+*.log
+
+ffmpeg.zip
+__pycache__/
+*.pyc
+node_modules/
