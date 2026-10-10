@@ -207,3 +207,68 @@ We now KNOW the truth, no more guessing.
 **Verdict:** heart BEATS via app (file at `D:\new downloader\backend\downloads\eb596dc2-0098-48f7-a2b1-ab765fea140d.webm`, 474478 bytes)
 
 We now KNOW the truth, no more guessing — and NO API key was ever needed.
+---
+
+## PREVIEW AUDIT — 2026-10-09 (preview-only session; NO code was changed)
+
+Scope note: DSH session workspace is D:\Doenloader, project is D:\new downloader; each write into the
+project needed one-off approval. No node/npm on PATH -> bundled node v24.21.0 + Next 14.2.35 CLI used.
+
+### STEP 1 — DIARY (read, not assumed)
+- PROGRESS.md claims: heart BEATS via app (backend\downloads\eb596dc2-0098-48f7-a2b1-ab765fea140d.webm,
+  474478 B) through the Redis-down fallback thread; ENGINE BROKEN (redis 6379 no listener, no celery worker).
+- backend\uvicorn.log = 0 bytes / 0 lines -> LAST ERROR: none (nothing to quote).
+- Live at session start: NO_LISTENER 3000, NO_LISTENER 8000, NO_LISTENER 6379 (all three down).
+
+### STEP 2 — BRING UP (receipts)
+- BACKEND UP: venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+  - GET http://127.0.0.1:8000/docs -> 200 (1009 B)
+  - GET /openapi.json -> 200 (121765 B, 121 paths)
+  - GET /health -> 200 {"status":"healthy"}
+  - GET /api/v1/system/health -> 200 {"backend_ok":true,"redis_ok":false,"celery_ok":false}
+  - GET /api/v1/admin/health -> 403 Forbidden (gated; auth/gating responds)
+- FRONTEND: production build FAILED (BUG-1 below). Fallback used, clearly labelled: node next dev -p 3000
+  - GET http://127.0.0.1:3000/ -> 200, 73386 B, <title>MediaVault</title>
+- REDIS: NO_LISTENER 6379; redis-py ping -> redis.exceptions.TimeoutError: Timeout connecting to server.
+  No redis-server/redis-cli/memurai on PATH, no docker. wsl.exe present but unused.
+- CELERY: no process whose command line contains "celery".
+- ENGINE FALLBACK (1 line): engine stays asleep; downloads still complete through the app's own
+  Redis-down fallback thread (see HEART AUDIT), so absence of Redis does not stop a preview or a download.
+
+### STEP 3 — SCREENSHOTS
+No browser subagent exists in this harness (no playwright/puppeteer/selenium anywhere on the box).
+Screenshots were taken by driving Brave 155.0.8059.40 headless over the DevTools protocol with a
+stdlib-only client; every shot carries a DOM receipt (path/theme/overlay). Copied to preview\:
+- 01_home_dark.png 211771 B  theme=dark  overlay=false
+- 02_sidebar_collapsed.png 178978 B  (clicked the collapse button: clicked)
+- 03_sidebar_expanded.png 209035 B  (clicked expand: clicked)
+- 04_library.png 93240 B | 05_queue.png 99427 B | 06_plugins.png 73961 B
+- 07_upgrade_modal.png 95893 B  (clicked "Unlock everything"; button count 11 -> 13)
+- 08_team_plan_card.png 64008 B | 10_safety_gated.png 74259 B
+- 09_settings.png 144465 B  overlay=TRUE  (BUG-3)
+- 11_admin.png 208001 B  (navigated to /admin, DOM reported location.pathname "/" = redirect)
+- 12,13,20,21,22,23 = 41069 B each, overlay=true, no title/theme -> poisoned dev compile (BUG-1)
+- Sidebar gating labels rendered in DOM: "Collections STARTER / Profiles STARTER / Plugins PRO /
+  Safety Center PRO / Remote / Devices START..."
+NOT CAPTURED: clean light-theme shot (blocked by BUG-1), /pricing (route does not exist).
+
+### BUGS CAPTURED — NOT FIXED (preview-only)
+- BUG-1 FATAL: frontend\app\(dashboard)\admin\payments\page.tsx:102
+  "Syntax Error: Unexpected token `div`. Expected jsx identifier" (next build exit 1).
+  It also poisons the dev compiler: after that route is requested, EVERY route returns the error overlay.
+- BUG-2 FUNCTIONAL: every frontend data call 404s on :3000 while the backend is healthy on :8000 —
+  /api/v1/system/{speed,network,disk}, /api/v1/desktop/pending, /api/v1/library* (+,stats,categories,
+  untracked), /api/v1/queue, /api/v1/plugins, /api/v1/settings, /api/v1/providers/status,
+  /api/v1/cloud/status, /api/v1/dedup/check. No rewrite/proxy and no .env.local (only .env.local.example).
+- BUG-3: /settings renders the Next.js dev error overlay (overlay=true).
+- BUG-4 minor: /_next/static/chunks/1375-44213dea915c1145.js 404; /icons/icon-192.png 404.
+- BUG-5: /admin redirects to /; /admin/payments is the syntax-broken page. /pricing does not exist.
+- PROGRESS.md STATUS BOARD correction: an /admin route group DOES exist (app/(dashboard)/admin with
+  index + audit/payments/settings/tenants/users), contradicting "no /admin route group".
+
+### STEP 4 — FUNCTIONAL SMOKE
+SKIPPED, plainly: engine was down (redis_ok=false, celery_ok=false) in STEP 2. Not attempted, not faked.
+
+### BLOCKED
+- BLOCKED-PROD: production-mode preview is impossible until BUG-1 is fixed (fixing is out of scope).
+- No API key was requested, needed, or used at any point.
