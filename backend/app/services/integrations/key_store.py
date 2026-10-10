@@ -113,6 +113,7 @@ class KeyStore:
         keys = cls.load()
         now = datetime.utcnow().isoformat()
         keys[name] = {
+            "name": name,
             "value": value,
             "category": category,
             "metadata": metadata or {},
