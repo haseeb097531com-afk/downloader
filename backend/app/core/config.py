@@ -103,7 +103,7 @@ class Settings(BaseSettings):
     CLOUD_TOKENS_FILE: str = os.getenv("CLOUD_TOKENS_FILE", "./data/cloud_tokens.json")
 
     # Smart deduplication defaults
-    DEDUP_ENABLED: bool = True
+    DEDUP_ENABLED: bool = False
     DEDUP_THRESHOLD: int = 6
 
     # yt-dlp download archive (URL-level dedup)

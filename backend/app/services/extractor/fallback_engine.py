@@ -13,7 +13,7 @@ import httpx
 
 from app.core import redis_client
 from app.core.config import settings
-from app.models.extraction_attempt import ProviderName
+from app.models.extraction_attempt import ExtractionAttempt, ProviderName
 from app.services.extractor.api_providers import ProviderRegistry
 from app.services.extractor.ytdlp_engine import YTDLPEngine, YTDLPEngineError
 

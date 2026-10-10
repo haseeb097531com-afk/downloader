@@ -139,6 +139,8 @@ from app.api.v1.endpoints.billing import router as billing_router
 app.include_router(billing_router, prefix="/api/v1")
 from app.api.v1.endpoints.media import router as media_router
 app.include_router(media_router, prefix="/api/v1")
+from app.api.v1.endpoints.admin import router as admin_router
+app.include_router(admin_router, prefix="/api/v1")
 
 _desktop_manager = DesktopManager()
 

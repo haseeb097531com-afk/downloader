@@ -1,0 +1,1 @@
+export default function Placeholder() { return <div className='glass-card p-8 text-center text-text-secondary mt-10'>coming in next step</div>; }

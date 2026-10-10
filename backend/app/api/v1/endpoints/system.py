@@ -5,8 +5,25 @@ from app.core.config import settings
 from app.services.storage.storage_guard import get_disk_status as get_disk
 from app.services.processor.resource_guard import ResourceGuard
 from app.services.network.network_monitor import get_current_speed
+from app.core.celery_app import celery_app
 
 router = APIRouter(tags=["System"])
+
+
+async def _check_redis() -> bool:
+    try:
+        return await redis_client.ping()
+    except Exception:
+        return False
+
+
+async def _check_celery() -> bool:
+    try:
+        inspect = celery_app.control.inspect()
+        stats = inspect.stats()
+        return stats is not None and len(stats) > 0
+    except Exception:
+        return False
 
 
 @router.get("/system/stats")
@@ -60,4 +77,32 @@ async def get_system_speed():
         "concurrent_fragments": getattr(settings, "CONCURRENT_FRAGMENTS", 16),
         "active_workers": getattr(settings, "MAX_CONCURRENT_DOWNLOADS", ResourceGuard.get_recommended_concurrency()),
         "current_speed_mbps": speed_mbps,
+    }
+
+
+@router.get("/system/health")
+async def get_system_health():
+    """Health check including Redis and Celery connectivity."""
+    import asyncio
+
+    async def _check_redis() -> bool:
+        try:
+            return await redis_client.ping()
+        except Exception:
+            return False
+
+    async def _check_celery() -> bool:
+        try:
+            inspect = celery_app.control.inspect()
+            stats = inspect.stats()
+            return stats is not None and len(stats) > 0
+        except Exception:
+            return False
+
+    redis_ok, celery_ok = await asyncio.gather(_check_redis(), _check_celery())
+
+    return {
+        "backend_ok": True,
+        "redis_ok": redis_ok,
+        "celery_ok": celery_ok,
     }

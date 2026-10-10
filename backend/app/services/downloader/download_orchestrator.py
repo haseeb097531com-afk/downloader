@@ -138,7 +138,7 @@ class DownloadOrchestrator:
         if not dispatch:
             return None
 
-        return self.dispatch(download.id)
+        return await self.dispatch(download.id)
 
     async def dispatch(self, download_id: str, resume: bool = False) -> Optional[str]:
         """Send a download to a Celery worker and record the task ID.
@@ -175,6 +175,84 @@ class DownloadOrchestrator:
         The import is local so that importing this module does not pull in yt-dlp
         and Celery at API import time.
         """
+        import redis
+        import threading
+        import subprocess
+        import os
+        from app.models.download import Download, DownloadStatus
+        from app.core.config import settings
+
+        try:
+            r = redis.Redis(host='localhost', port=6379, socket_timeout=1)
+            r.ping()
+            redis_alive = True
+        except Exception:
+            redis_alive = False
+
+        if not redis_alive:
+            logger.warning("Redis is unreachable, falling back to local background thread for download %s", download_id)
+            
+            def _fallback_download(d_id: str):
+                logger.info("Fallback thread STARTED for download %s", d_id)
+                try:
+                    import asyncio
+                    from app.db.database import AsyncSessionLocal
+                    from sqlalchemy import select
+                    async def _run():
+                        logger.info("Fallback _run STARTED for download %s", d_id)
+                        try:
+                            async with AsyncSessionLocal() as session:
+                                result = await session.execute(select(Download).where(Download.id == d_id))
+                                d = result.scalars().first()
+                                if not d:
+                                    logger.warning("Fallback: download %s not found in DB", d_id)
+                                    return
+                                logger.info("Fallback: Found download %s, setting to DOWNLOADING", d_id)
+                                d.status = DownloadStatus.DOWNLOADING
+                                await session.commit()
+                                
+                                out_dir = settings.DOWNLOAD_DIR
+                                os.makedirs(out_dir, exist_ok=True)
+                                quality = d.quality if getattr(d, 'quality', None) else "best"
+                                format_str = f"-f {quality}" if quality != "best" else ""
+                                out_template = os.path.join(out_dir, f"{d_id}.%(ext)s")
+                                
+                                yt_dlp_path = r"D:\new downloader\backend\.venv\Scripts\yt-dlp.exe"
+                                if not os.path.exists(yt_dlp_path):
+                                    yt_dlp_path = "yt-dlp"
+    
+                                # Use list args instead of shell string for Windows compatibility
+                                cmd = [yt_dlp_path, d.url, "-o", out_template]
+                                if format_str:
+                                    cmd.extend(format_str.split())
+                                
+                                logger.info("Fallback: Running yt-dlp command: %s", cmd)
+                                process = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+                                
+                                if process.returncode == 0:
+                                    d.status = DownloadStatus.COMPLETED
+                                    # Try to find the downloaded file
+                                    for f in os.listdir(out_dir):
+                                        if f.startswith(d_id):
+                                            d.file_path = os.path.join(out_dir, f)
+                                            break
+                                    logger.info("Fallback: Download completed for %s, file: %s", d_id, d.file_path)
+                                else:
+                                    d.status = DownloadStatus.FAILED
+                                    d.error_message = process.stderr[-1000:] if process.stderr else "yt-dlp error"
+                                    logger.error("Fallback: yt-dlp failed for %s: %s", d_id, d.error_message)
+                                await session.commit()
+                                logger.info("Fallback: Committed final status for %s: %s", d_id, d.status)
+                        except Exception as e:
+                            logger.error("Fallback download error for %s: %s", d_id, e)
+                    asyncio.run(_run())
+                except Exception as e:
+                    logger.error("Fallback download thread error for %s: %s", d_id, e)
+            
+            t = threading.Thread(target=_fallback_download, args=(download_id,))
+            t.start()
+            return f"local-thread-{download_id}"
+
         from app.workers.download_tasks import download_media_task
 
         try:
@@ -606,9 +684,13 @@ class DownloadOrchestrator:
         self.db.add(download)
         await self.db.flush()
 
-        await self.enqueue_download(download, dispatch=True)
+        await self.enqueue_download(download, dispatch=False)
         await self.db.commit()
         await self.db.refresh(download)
+        
+        # Now dispatch after commit so the fallback thread can see the download
+        await self.dispatch(download.id)
+        
         return download
 
     @staticmethod

@@ -74,7 +74,7 @@ export default function HomePage() {
       return;
     }
     try {
-      await createDownload({ url });
+      await createDownload({ url, quality: selectedQuality });
     } catch (e) {
       if (e instanceof DuplicateError && e.matches) {
         setDuplicateMatches(e.matches);

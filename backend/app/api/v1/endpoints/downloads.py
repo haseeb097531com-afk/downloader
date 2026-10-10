@@ -18,6 +18,37 @@ from app.services.downloader.download_orchestrator import (
 
 router = APIRouter(prefix="/downloads", tags=["Downloads"])
 
+from pydantic import BaseModel
+from typing import Optional
+
+class CreateDownloadRequest(BaseModel):
+    url: str
+    quality: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    force: bool = False
+
+@router.post("", response_model=dict)
+async def create_download(
+    payload: CreateDownloadRequest,
+    orchestrator=Depends(get_orchestrator),
+):
+    try:
+        download = await orchestrator.create_download(
+            url=payload.url,
+            force=payload.force
+        )
+        if payload.quality:
+            download.quality = payload.quality
+        if payload.start_time:
+            download.trim_start = payload.start_time
+        if payload.end_time:
+            download.trim_end = payload.end_time
+        await orchestrator.db.commit()
+        return {"id": str(download.id), "status": "queued"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
 
 @router.post("/{id}/pause", response_model=DownloadActionResult)
 async def pause_download(

@@ -1,9 +1,10 @@
 import { DuplicateMatch } from './dedup';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+const API_BASE = 'http://127.0.0.1:8000/api/v1';
 
 export interface CreateDownloadRequest {
   url: string;
+  quality?: string;
   start_time?: string;
   end_time?: string;
 }
@@ -11,7 +12,7 @@ export interface CreateDownloadRequest {
 export interface CreateDownloadResponse {
   id: string;
   status: string;
-  message: string;
+  message?: string;
 }
 
 export class DuplicateError extends Error {
