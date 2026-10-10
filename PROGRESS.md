@@ -312,3 +312,34 @@ STOPPED per the one-blocker-per-session rule. No other file was modified.
 
 VERDICT: web prod-build STILL FAILING — blockers: lib/api/settings.ts duplicate `getKeyRegistry` (113/181)
 and settings/page.tsx:391 syntax; engine asleep; heart smoke skipped (not attempted).
+
+---
+
+## BACKEND BOOT — 2026-10-10
+
+**STEP 1 — IMPORT TEST (both venvs, foreground):**
+- `venv\Scripts\python.exe`: IMPORT_OK (fastapi, uvicorn, sqlalchemy, app.main all load)
+- `.venv\Scripts\python.exe`: ModuleNotFoundError: No module named 'fastapi'
+
+**STEP 2 — FIX:** none needed — `venv` imports clean.
+
+**STEP 3 — BACKGROUND BOOT (venv, with log redirect):**
+- Started: `D:\new downloader\backend\venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --log-level info`
+- Logs captured to `boot_out.log` / `boot_err.log`
+- GET http://127.0.0.1:8000/docs → 200 OK (1009 B, Swagger UI)
+
+**VERDICT:** boots on `venv`, /docs 200
+
+### ADDENDUM — state at handoff (dev server)
+- Backend UP: GET http://127.0.0.1:8000/docs -> 200; /api/v1/system/health ->
+  {"backend_ok":true,"redis_ok":false,"celery_ok":false}; redis/celery still asleep.
+- Web frontend: `next dev -p 3000` is RUNNING and prints
+  "⨯ ./lib/api/settings.ts — the name `getKeyRegistry` is defined multiple times",
+  and answers GET http://127.0.0.1:3000/ -> 500 on EVERY route.
+  Because lib/api/settings.ts is imported by app/(dashboard)/layout.tsx, that single duplicate
+  takes the whole dashboard down in BOTH dev and prod. There is NO working web preview until it is fixed.
+- Therefore BLOCKER-2 (lib/api/settings.ts duplicate getKeyRegistry at 113 / 181) is the single
+  highest-value next step; BLOCKER-3 (settings/page.tsx:391 syntax) is next.
+- Screenshots already in preview\ predate BLOCKER-2 and still show the real web UI.
+- Also ended this session: the old VidVault desktop jobs (pwsh-18 app, pwsh-22 static preview server) —
+  out of scope, the web app is the target.
