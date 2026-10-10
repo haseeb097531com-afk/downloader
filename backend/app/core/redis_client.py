@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import Any, AsyncIterator, Dict, Optional
 
 import redis
@@ -67,6 +68,8 @@ __all__ = [
 # Clients are cached at module level so connection pools are shared across requests.
 _sync_client: Optional[redis.Redis] = None
 _async_client: Optional[aioredis.Redis] = None
+_redis_unavailable_cache: float = 0.0  # Timestamp of last failed connection attempt
+_REDIS_UNAVAILABLE_CACHE_TTL: float = 5.0  # Seconds to cache "unavailable" state
 
 
 class RedisUnavailable(RuntimeError):
@@ -94,13 +97,24 @@ def get_redis() -> redis.Redis:
             keeps the failure mode explicit instead of deferring it to the first
             real command, which would otherwise fail mid-transaction.
     """
-    global _sync_client
+    global _sync_client, _redis_unavailable_cache
+    
+    # Check if we recently failed to connect - cache the unavailable state
+    if _sync_client is None and time.time() - _redis_unavailable_cache < _REDIS_UNAVAILABLE_CACHE_TTL:
+        raise RedisUnavailable("Redis connection recently failed (cached)")
+    
     if _sync_client is None:
-        client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+        client = redis.Redis.from_url(
+            settings.REDIS_URL,
+            decode_responses=True,
+            socket_connect_timeout=1,
+            socket_timeout=1,
+        )
         try:
             client.ping()
         except Exception as exc:  # pragma: no cover - depends on deployment
             logger.warning("Redis unavailable at %s: %s", settings.REDIS_URL, exc)
+            _redis_unavailable_cache = time.time()
             raise RedisUnavailable(f"Redis is unavailable: {exc}") from exc
         _sync_client = client
     return _sync_client
@@ -114,7 +128,12 @@ def get_async_redis() -> aioredis.Redis:
     """
     global _async_client
     if _async_client is None:
-        _async_client = aioredis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+        _async_client = aioredis.Redis.from_url(
+            settings.REDIS_URL,
+            decode_responses=True,
+            socket_connect_timeout=1,
+            socket_timeout=1,
+        )
     return _async_client
 
 

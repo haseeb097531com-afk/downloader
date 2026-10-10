@@ -64,7 +64,7 @@ export default function AdminPaymentsPage() {
     setActionLoading(payment.id);
     try {
       await rejectAdminPayment(accessToken, payment.id, reason || undefined);
-      setPayments(prev => p => p.id === payment.id ? { ...p, status: 'rejected' } : p);
+      setPayments(prev => prev.map(p => p.id === payment.id ? { ...p, status: 'rejected' } : p));
       setSelectedPayment(null);
     } catch (e: any) {
       alert(e.message || 'Failed to reject payment');
@@ -218,7 +218,7 @@ export default function AdminPaymentsPage() {
                               Reject
                             </button>
                           </>
-                        }
+                        )}
                         {actionLoading === p.id && (
                           <motion.div className="w-4 h-4 animate-spin text-text-secondary" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -298,7 +298,7 @@ export default function AdminPaymentsPage() {
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Status</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[selectedPayment.status as keyof typeof STATUS_COLORS].bg} ${STATUS_COLORS[selectedPayment.status as keyof typeof STATUS_COLORS].text} flex items-center gap-1`}>
-                    <STATUS_COLORS[selectedPayment.status as keyof typeof STATUS_COLORS].icon className="w-3 h-3" />
+                    {(() => { const Icon = STATUS_COLORS[selectedPayment.status as keyof typeof STATUS_COLORS].icon; return <Icon className="w-3 h-3" />; })()}
                     {selectedPayment.status}
                   </span>
                 </div>
@@ -335,7 +335,7 @@ export default function AdminPaymentsPage() {
                       Reject
                     </button>
                   </>
-                }}
+                )}
                 <button
                   onClick={() => setSelectedPayment(null)}
                   className="px-4 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/50 transition-colors"

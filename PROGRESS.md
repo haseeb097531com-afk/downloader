@@ -272,3 +272,43 @@ SKIPPED, plainly: engine was down (redis_ok=false, celery_ok=false) in STEP 2. N
 ### BLOCKED
 - BLOCKED-PROD: production-mode preview is impossible until BUG-1 is fixed (fixing is out of scope).
 - No API key was requested, needed, or used at any point.
+
+---
+
+## WEB BUILD AUDIT — 2026-10-09 (target = Next.js web app at 127.0.0.1:3000, NOT the Qt desktop shell)
+
+TARGET CLARIFIED: the preview target is the Next.js MediaVault web app. The PySide6 "VidVault" shell in
+this repo is a separate, unfinished thing and was NOT used for any screenshot.
+
+### STEP 1 — BUG-1 (syntax) FIXED and verified; the build then found the NEXT blockers
+Repaired file: frontend\app\(dashboard)\admin\payments\page.tsx — 4 lines, nothing else touched.
+TSX parse diagnostics: 5 -> 0 (verified with the TypeScript parser via the D:\Doenloader scratch tool).
+The build's "line 102 <div>" pointer was a CASCADE, not the cause; the real defects were:
+  L67  before: setPayments(prev => p => p.id === payment.id ? { ...p, status: 'rejected' } : p);
+       after : setPayments(prev => prev.map(p => p.id === payment.id ? { ...p, status: 'rejected' } : p));
+  L221 before: }                       after: )}
+  L301 before: <STATUS_COLORS[selectedPayment.status as keyof typeof STATUS_COLORS].icon className="w-3 h-3" />
+       after : {(() => { const Icon = STATUS_COLORS[selectedPayment.status as keyof typeof STATUS_COLORS].icon; return <Icon className="w-3 h-3" />; })()}
+  L338 before: }}                      after: )}
+(TSX forbids a computed member expression as a JSX tag name, hence the L301 rewrite; L67 was a type bug.)
+
+### BUILD RESULT: `next build` exit 1 AGAIN — two NEW blockers in OTHER files
+- BLOCKER-2: frontend\lib\api\settings.ts — the name `getKeyRegistry` is defined multiple times:
+    line 113: export async function getKeyRegistry(): Promise<KeyRegistryResponse>
+    line 181: export async function getKeyRegistry(): Promise<{ keys: any[]; categories: string[] }>
+  Import trace: lib/api/settings.ts <- lib/store/settings.ts <- lib/store/push.ts <- app/(dashboard)/layout.tsx
+- BLOCKER-3: frontend\app\(dashboard)\settings\page.tsx:391 — "Unexpected token `div`. Expected jsx identifier"
+  (same cascade shape as BUG-1: a real syntax error earlier in that file; locate it with a TSX parse pass).
+STOPPED per the one-blocker-per-session rule. No other file was modified.
+
+### ENGINE / HEART
+- Backend uvicorn background job exited (exit code 1) during this session.
+- Redis 6379: NO_LISTENER; celery: no worker. App self-report stays {"redis_ok":false,"celery_ok":false}.
+- STEP 2 (engine), STEP 3 (fresh prod screenshots) and STEP 4 (heart smoke) NOT performed this session.
+- Existing real WEB screenshots (dev server, Brave/CDP, 1440x900) remain in preview\ :
+  01_home_dark.png, 02_sidebar_collapsed.png, 03_sidebar_expanded.png, 04_library.png, 05_queue.png,
+  06_plugins.png, 07_upgrade_modal.png, 08_team_plan_card.png, 10_safety_gated.png, 11_admin.png
+  (12/13/20-23 are dev error-overlay frames from the pre-fix state).
+
+VERDICT: web prod-build STILL FAILING — blockers: lib/api/settings.ts duplicate `getKeyRegistry` (113/181)
+and settings/page.tsx:391 syntax; engine asleep; heart smoke skipped (not attempted).

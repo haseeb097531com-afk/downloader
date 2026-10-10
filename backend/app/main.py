@@ -18,6 +18,7 @@ from app.api.v1.endpoints.queue import router as queue_router
 from app.api.v1.endpoints.downloads import router as downloads_router
 from app.api.v1.endpoints.ws import router as ws_router
 from app.api.v1.endpoints.settings import router as settings_router
+from app.api.v1.endpoints.keys import router as keys_router
 from app.api.v1.endpoints.system import router as system_router
 from app.api.v1.endpoints.providers import router as providers_router
 from app.api.v1.endpoints.desktop import router as desktop_router
@@ -113,6 +114,7 @@ app.include_router(queue_router, prefix="/api/v1")
 app.include_router(downloads_router, prefix="/api/v1")
 app.include_router(ws_router)
 app.include_router(settings_router, prefix="/api/v1")
+app.include_router(keys_router, prefix="/api/v1")
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(providers_router, prefix="/api/v1")
 app.include_router(desktop_router, prefix="/api/v1")
@@ -263,14 +265,11 @@ async def lifespan(app: FastAPI):
         print(f"Warning: download scheduler failed to start: {exc}")
 
     _telegram_bot_task = None
-    if getattr(settings, "TELEGRAM_BOT_ENABLED", False) and getattr(settings, "TELEGRAM_BOT_TOKEN", ""):
+    if getattr(settings, "TELEGRAM_BOT_ENABLED", False):
         try:
             from app.services.bot.telegram_bot import TelegramBotService
             _telegram_bot_service = TelegramBotService()
-            _telegram_bot_service.start(
-                settings.TELEGRAM_BOT_TOKEN,
-                getattr(settings, "TELEGRAM_ALLOWED_CHAT_IDS", "") or "",
-            )
+            await _telegram_bot_service.start_from_store()
             if _telegram_bot_service.enabled:
                 _telegram_bot_task = asyncio.create_task(_telegram_bot_service.run())
                 logger.info("Telegram bot background task started")

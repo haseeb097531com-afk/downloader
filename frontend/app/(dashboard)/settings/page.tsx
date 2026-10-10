@@ -7,9 +7,10 @@ import { usePushStore } from '@/lib/store/push';
 import { getDiskStatus, DiskStatus, getSystemSpeed, SystemSpeed } from '@/lib/api/system';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Save, Loader2, Settings2, Cpu, HardDrive, Eye, EyeOff, Zap, Activity, Monitor, Shield, Cloud, Sparkles, CopyX, Globe2, Gauge, Clock, AlertTriangle, Bell } from 'lucide-react';
+import { Save, Loader2, Settings2, Cpu, HardDrive, Eye, EyeOff, Zap, Activity, Monitor, Shield, Cloud, Sparkles, CopyX, Globe2, Gauge, Clock, AlertTriangle, Bell, Key, ShieldCheck, Wifi, Globe, MessageSquare, CreditCard, Cookie } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getCloudStatus, getGoogleAuthUrl, connectDropbox, disconnectCloud, CloudStatus } from '@/lib/api/cloud';
+import { getKeyRegistry, listKeys, createKey, updateKey, deleteKey, testKey } from '@/lib/api/settings';
 
 const PROVIDER_COLORS: Record<string, string> = {
   scraperapi: 'bg-platform-youtube',
@@ -41,6 +42,26 @@ function timeAgo(dateStr: string | null) {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
+}
+
+function getCategoryColor(category: string) {
+  switch (category) {
+    case 'ai': return 'bg-accent-secondary/20';
+    case 'telegram': return 'bg-blue-500/20';
+    case 'payment': return 'bg-emerald-500/20';
+    case 'cookies': return 'bg-amber-500/20';
+    default: return 'bg-status-info/20';
+  }
+}
+
+function getCategoryIcon(category: string) {
+  switch (category) {
+    case 'ai': return <Sparkles className="w-5 h-5 text-accent-secondary" />;
+    case 'telegram': return <MessageSquare className="w-5 h-5 text-blue-500" />;
+    case 'payment': return <CreditCard className="w-5 h-5 text-emerald-500" />;
+    case 'cookies': return <Cookie className="w-5 h-5 text-amber-500" />;
+    default: return <ShieldCheck className="w-5 h-5 text-status-info" />;
+  }
 }
 
 export default function SettingsPage() {
@@ -80,7 +101,7 @@ export default function SettingsPage() {
   const [showRapidKey, setShowRapidKey] = useState(false);
   const [showAttempts, setShowAttempts] = useState(false);
 
-  const [cloudStatus, setCloudStatus] = useState<CloudStatus>({
+const [cloudStatus, setCloudStatus] = useState<CloudStatus>({
     google_connected: false,
     dropbox_connected: false,
     cloud_backup_enabled: false,
@@ -94,11 +115,69 @@ export default function SettingsPage() {
   const [isConnectingDropbox, setIsConnectingDropbox] = useState(false);
   const [isDisconnectingDropbox, setIsDisconnectingDropbox] = useState(false);
 
-  useEffect(() => {
+  // Integrations & API Keys state
+  const [registry, setRegistry] = useState<Array<{
+    name: string;
+    label: string;
+    category: string;
+    required_for: string[];
+    test: string;
+    optional: boolean;
+    secret: boolean;
+    description?: string;
+    note?: string;
+  }>>([]);
+  const [keys, setKeys] = useState<Record<string, {
+    name: string;
+    value: string;
+    category: string;
+    metadata: Record<string, unknown>;
+    is_set: boolean;
+    created_at: string;
+    updated_at: string;
+    last_test_status: string;
+    last_test_at: string | null;
+  }>>({});
+  const [keyInputs, setKeyInputs] = useState<Record<string, string>>({});
+  const [showKey, setShowKey] = useState<Record<string, boolean>>({});
+  const [testingKey, setTestingKey] = useState<string | null>(null);
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [registryLoaded, setRegistryLoaded] = useState(false);
+  const [keysLoaded, setKeysLoaded] = useState(false);
+
+useEffect(() => {
     fetchSettings();
     fetchProviders();
     fetchDesktopStatus();
   }, [fetchSettings, fetchProviders, fetchDesktopStatus]);
+
+  // Load key registry and keys
+  useEffect(() => {
+    const fetchRegistryAndKeys = async () => {
+      try {
+        const [regData, keysData] = await Promise.all([
+          getKeyRegistry(),
+          listKeys(),
+        ]);
+        setRegistry(regData.keys);
+        setKeys(keysData);
+        // Initialize key inputs with masked values
+        const inputs: Record<string, string> = {};
+        Object.entries(keysData).forEach(([name, data]) => {
+          if (data.is_set && data.value) {
+            inputs[name] = data.value; // This is already masked from backend
+          }
+        });
+        setKeyInputs(inputs);
+      } catch (e) {
+        console.error('Failed to load keys:', e);
+      } finally {
+        setRegistryLoaded(true);
+        setKeysLoaded(true);
+      }
+    };
+    fetchRegistryAndKeys();
+  }, []);
 
   useEffect(() => {
     const fetchCloud = async () => {
@@ -208,7 +287,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDropboxDisconnect = async () => {
+const handleDropboxDisconnect = async () => {
     setIsDisconnectingDropbox(true);
     try {
       await disconnectCloud('dropbox');
@@ -219,6 +298,92 @@ export default function SettingsPage() {
     } finally {
       setIsDisconnectingDropbox(false);
     }
+  };
+
+  // Key management handlers
+  const handleSaveKey = async (name: string) => {
+    const value = keyInputs[name];
+    if (!value || !value.trim()) {
+      addToast('Key value cannot be empty', 'error');
+      return;
+    }
+    setSavingKey(name);
+    try {
+      const keyDef = registry.find((k) => k.name === name);
+      await createKey({ name, value: value.trim(), category: keyDef?.category || 'other' });
+      const keysData = await listKeys();
+      setKeys(keysData);
+      setKeyInputs((prev) => ({ ...prev, [name]: keysData[name]?.value || '' }));
+      addToast(`${keyDef?.label || name} saved`, 'success');
+    } catch (e: any) {
+      addToast(e.message || `Failed to save ${name}`, 'error');
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
+  const handleUpdateKey = async (name: string) => {
+    const value = keyInputs[name];
+    if (!value || !value.trim()) {
+      addToast('Key value cannot be empty', 'error');
+      return;
+    }
+    setSavingKey(name);
+    try {
+      await updateKey(name, { value: value.trim() });
+      const keysData = await listKeys();
+      setKeys(keysData);
+      setKeyInputs((prev) => ({ ...prev, [name]: keysData[name]?.value || '' }));
+      addToast(`${name} updated`, 'success');
+    } catch (e: any) {
+      addToast(e.message || `Failed to update ${name}`, 'error');
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
+  const handleDeleteKey = async (name: string) => {
+    if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
+    try {
+      await deleteKey(name);
+      const keysData = await listKeys();
+      setKeys(keysData);
+      setKeyInputs((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+      setShowKey((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+      addToast(`${name} deleted`, 'success');
+    } catch (e: any) {
+      addToast(e.message || `Failed to delete ${name}`, 'error');
+    }
+  };
+
+  const handleTestKey = async (name: string) => {
+    setTestingKey(name);
+    try {
+      const result = await testKey(name);
+      const keysData = await listKeys();
+      setKeys(keysData);
+      addToast(`${name}: ${result.message}`, result.status === 'ok' ? 'success' : 'error');
+    } catch (e: any) {
+      addToast(e.message || `Test failed for ${name}`, 'error');
+    } finally {
+      setTestingKey(null);
+    }
+  };
+
+  const handleKeyInputChange = (name: string, value: string) => {
+    setKeyInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleShowKey = (name: string) => {
+    setShowKey((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
   const sendTestPush = async () => {
@@ -1262,6 +1427,151 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          </div>
+          </div>
+
+          {/* Integrations & API Keys Section */}
+          <div className="glass-card rounded-xl p-6" id="integrations-keys">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-accent-primary/20">
+                <Key className="w-5 h-5 text-accent-primary" />
+              </div>
+              <div>
+                <h2 className="text-text-primary font-semibold">Integrations & API Keys</h2>
+                <p className="text-text-secondary text-sm">
+                  Configure keys for AI features, Telegram bot, and payments.{' '}
+                  <span className="text-accent-primary font-medium">
+                    Downloading public videos needs NO key — yt-dlp does it for free.
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {(!registryLoaded || !keysLoaded) ? (
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-12 bg-bg-tertiary rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {registry.map((keyDef) => {
+                  const keyData = keys[keyDef.name];
+                  const isSet = keyData?.is_set ?? false;
+                  const maskedValue = keyInputs[keyDef.name] || (isSet ? keyData?.value : '');
+                  const testStatus = keyData?.last_test_status || 'untested';
+                  const isSecret = keyDef.secret;
+                  const isSaving = savingKey === keyDef.name;
+                  const isTesting = testingKey === keyDef.name;
+                  const show = showKey[keyDef.name];
+
+                  const statusColors = {
+                    ok: 'bg-status-success',
+                    fail: 'bg-status-error',
+                    untested: 'bg-text-muted',
+                    'not-set': 'bg-text-muted',
+                  };
+                  const statusLabels = {
+                    ok: 'Tested OK',
+                    fail: 'Test Failed',
+                    untested: 'Not tested',
+                    'not-set': 'Not set',
+                  };
+
+                  return (
+                    <div key={keyDef.name} className="rounded-xl p-4 bg-bg-tertiary/50 border border-border">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${getCategoryColor(keyDef.category)}`}>
+                              {getCategoryIcon(keyDef.category)}
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="text-text-primary font-medium truncate">{keyDef.label}</h3>
+                              <p className="text-text-secondary text-sm truncate">{keyDef.description}</p>
+                              {keyDef.note && (
+                                <p className="text-text-muted text-xs mt-1">{keyDef.note}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[testStatus] || 'bg-text-muted'} text-white`}>
+                              {statusLabels[testStatus as keyof typeof statusLabels] || testStatus}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize bg-bg-tertiary text-text-secondary`}>
+                              {keyDef.category}
+                            </span>
+                            {!keyDef.optional && (
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-status-warning/20 text-status-warning">
+                                Required
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                          <div className="relative flex-1 sm:w-64">
+                            <input
+                              type={isSecret && !show ? 'password' : 'text'}
+                              value={maskedValue}
+                              onChange={(e) => handleKeyInputChange(keyDef.name, e.target.value)}
+                              placeholder={isSet ? (isSecret ? '••••••••' : 'Saved') : 'Enter key...'}
+                              disabled={isSaving || isTesting}
+                              className="w-full px-4 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary transition-colors pr-10"
+                            />
+                            {isSecret && (
+                              <button
+                                onClick={() => toggleShowKey(keyDef.name)}
+                                disabled={isSaving || isTesting}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary disabled:opacity-50"
+                              >
+                                {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {isSet ? (
+                              <>
+                                <button
+                                  onClick={() => handleUpdateKey(keyDef.name)}
+                                  disabled={isSaving || isTesting || !keyInputs[keyDef.name]?.trim()}
+                                  className="px-3 py-2 rounded-lg bg-bg-secondary text-text-secondary hover:text-text-primary disabled:opacity-50 transition-colors flex items-center gap-2 text-sm"
+                                >
+                                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                                </button>
+                                <button
+                                  onClick={() => handleTestKey(keyDef.name)}
+                                  disabled={isSaving || isTesting || !keyInputs[keyDef.name]?.trim()}
+                                  className="px-3 py-2 rounded-lg bg-bg-secondary text-text-secondary hover:text-text-primary disabled:opacity-50 transition-colors flex items-center gap-2 text-sm"
+                                >
+                                  {isTesting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Test'}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteKey(keyDef.name)}
+                                  disabled={isSaving || isTesting}
+                                  className="px-3 py-2 rounded-lg bg-bg-secondary text-status-error hover:bg-status-error/20 disabled:opacity-50 transition-colors flex items-center gap-2 text-sm"
+                                >
+                                  <CopyX className="w-4 h-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => handleSaveKey(keyDef.name)}
+                                disabled={isSaving || isTesting || !keyInputs[keyDef.name]?.trim()}
+                                className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-medium hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center gap-2 text-sm"
+                              >
+                                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end">

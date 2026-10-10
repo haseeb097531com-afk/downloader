@@ -12,6 +12,7 @@ from app.db.database import AsyncSessionLocal
 from app.models.download import Download
 from app.services.downloader.download_orchestrator import DownloadOrchestrator
 from app.services.extractor.platform_detector import PlatformDetector
+from app.services.integrations.secrets import get_secret
 from sqlalchemy import select
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,22 @@ class TelegramBotService:
         self.allowed_chat_ids: set[int] = set()
         self._running = False
 
-    def start(self, token: str, allowed_chat_ids_str: str) -> None:
+    async def start_from_store(self) -> None:
+        """Start the bot using token from the encrypted key store."""
+        if not TELEGRAM_AVAILABLE:
+            logger.warning("Cannot start Telegram bot: python-telegram-bot not installed")
+            return
+
+        token = await get_secret("telegram_bot_token")
+        allowed_chat_ids = getattr(settings, "TELEGRAM_ALLOWED_CHAT_IDS", "") or ""
+        
+        if not token:
+            logger.info("Telegram bot disabled: no token configured in key store")
+            return
+
+        await self._start(token, allowed_chat_ids)
+
+    async def _start(self, token: str, allowed_chat_ids_str: str) -> None:
         if not TELEGRAM_AVAILABLE:
             logger.warning("Cannot start Telegram bot: python-telegram-bot not installed")
             return
